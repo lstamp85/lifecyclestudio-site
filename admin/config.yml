@@ -1,0 +1,27 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "images"
+public_folder: "/images"
+
+publish_mode: simple
+
+collections:
+  - name: "posts"
+    label: "Blog Posts"
+    label_singular: "Post"
+    folder: "blog/entries"
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}} — {{date}}"
+    sortable_fields: ["date", "title"]
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Slug (URL)", name: "slug", widget: "string", hint: "Lowercase, hyphens only, e.g. my-new-post" }
+      - { label: "Excerpt", name: "excerpt", widget: "text", hint: "1-2 sentences shown on the blog listing page" }
+      - { label: "Category", name: "category", widget: "select", options: ["Growth Strategy", "Community", "Retention", "Customer Value", "Leadership", "AI & Growth"] }
+      - { label: "Publish Date", name: "date", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Featured Image", name: "image", widget: "image", required: false }
+      - { label: "Feature this post at the top of the blog page?", name: "featured", widget: "boolean", default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
