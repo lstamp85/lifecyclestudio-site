@@ -7,7 +7,7 @@ excerpt: The last decade of digital growth was dominated by funnels, hacks and
   do so by designing around Customers, Community and Commerce.
 category: Growth Strategy
 date: 2026-06-30
-image: /images/girls.png
+image: /images/pexels-diva-plavalaguna-6146691.jpg
 featured: false
 ---
 The last decade of digital growth was dominated by funnels, hacks and channel arms-races. The next decade belongs to systems, relationships and commercial clarity. In 2026, leaders who unlock growth most efficiently will do so by designing around Customers, Community and Commerce.
