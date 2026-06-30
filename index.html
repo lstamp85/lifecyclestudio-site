@@ -328,6 +328,7 @@ footer{background:var(--ink);padding:28px 52px;display:flex;align-items:center;j
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
 
@@ -1194,6 +1195,15 @@ window.addEventListener('DOMContentLoaded', () => {
     if(logos[src]) img.src=logos[src];
   });
 })();
+</script>
+<script>
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.on("init", user => {});
+    // Catch invite / recovery / confirmation tokens in the URL and open the widget
+    if (location.hash && (location.hash.includes("invite_token") || location.hash.includes("recovery_token") || location.hash.includes("confirmation_token"))) {
+      window.netlifyIdentity.open();
+    }
+  }
 </script>
 </body>
 </html>
