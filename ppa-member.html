@@ -31,6 +31,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .nav-links .active{color:var(--wh)!important}
 .nav-cta{background:var(--am)!important;color:var(--wh)!important;padding:0 18px!important;height:auto!important;border-radius:4px!important;margin-left:6px}
 .nav-cta:hover{background:var(--amd)!important}
+.nav-toggle{display:none;background:none;border:none;cursor:pointer;padding:10px;margin-left:6px}
+.nav-toggle span{display:block;width:22px;height:2px;background:var(--wh);margin:5px 0;transition:transform 0.25s ease,opacity 0.2s ease}
+.nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle.open span:nth-child(2){opacity:0}
+.nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:960px){
+  .nav-toggle{display:block}
+  .nav-links{position:fixed;top:64px;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;background:rgba(28,53,53,0.98);backdrop-filter:blur(10px);max-height:0;overflow:hidden;opacity:0;pointer-events:none;transition:max-height 0.28s ease,opacity 0.22s ease}
+  .nav-links.open{max-height:420px;opacity:1;pointer-events:auto;border-bottom:1px solid rgba(127,191,184,0.14)}
+  .nav-links li{width:100%}
+  .nav-links a,.nav-links button{height:auto;padding:16px 24px;width:100%;justify-content:flex-start;border-bottom:1px solid rgba(255,255,255,0.06)}
+  .nav-links .nav-cta{margin:12px 24px!important;width:calc(100% - 48px);justify-content:center;border-bottom:none}
+}
 
 /* HELPERS */
 .si{max-width:1080px;margin:0 auto}
@@ -303,7 +316,6 @@ footer{background:var(--ink);padding:28px 52px;display:flex;align-items:center;j
 
   .ai-ind-grid{grid-template-columns:1fr!important;}
   nav{padding:0 18px}
-  .nav-links li:not(:last-child){display:none}
   sec{padding:64px 18px}
   .hero,.cs,.bl-pg,.wd-hero{grid-template-columns:1fr}
   .hero-l{padding:72px 18px 52px}
@@ -356,6 +368,9 @@ footer{background:var(--ink);padding:28px 52px;display:flex;align-items:center;j
     <li><a class="active" href="ppa-member.html">PPA Members</a></li>
     <li><a class="nav-cta" href="mailto:lucy@lifecyclestudio.co.uk">Start a conversation</a></li>
   </ul>
+  <button class="nav-toggle" id="navToggle" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <div class="wd-pg">
@@ -449,6 +464,15 @@ footer{background:var(--ink);padding:28px 52px;display:flex;align-items:center;j
     <a href="index.html">Privacy Policy</a>
   </div>
 </footer>
+
+<script>
+function toggleMobileNav() {
+  document.querySelector('.nav-links').classList.toggle('open');
+  const btn = document.getElementById('navToggle');
+  const isOpen = btn.classList.toggle('open');
+  btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+</script>
 
 </body>
 </html>
