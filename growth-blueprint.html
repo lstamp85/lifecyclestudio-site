@@ -29,6 +29,8 @@
   header{display:flex;justify-content:space-between;align-items:flex-end;padding:44px 0 28px;border-bottom:1px solid var(--line);margin-bottom:40px;}
   .brand-mark{display:flex;flex-direction:column;gap:4px;}
   .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);}
+  .site-link{text-decoration:none;transition:color .15s ease;cursor:pointer;}
+  .site-link:hover{color:var(--brand);}
   .wordmark{font-family:var(--display);font-size:26px;font-weight:500;letter-spacing:-0.01em;}
   .wordmark em{font-style:normal;color:var(--brand);}
   nav.stepper{display:flex;gap:0;}
@@ -219,7 +221,7 @@
 
   <header>
     <div class="brand-mark">
-      <span class="eyebrow">Lifecycle Studio</span>
+      <a href="index.html" class="eyebrow site-link">&larr; Lifecycle Studio</a>
       <span class="wordmark">Growth <em>Blueprint</em></span>
     </div>
     <nav class="stepper">
