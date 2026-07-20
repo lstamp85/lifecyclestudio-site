@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KPBTN58LHQ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KPBTN58LHQ');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lifecycle Studio — Customer Growth Consultancy</title>
@@ -360,6 +351,7 @@ footer{background:var(--ink);padding:28px 52px;display:flex;align-items:center;j
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<script src="/cookie-consent.js" defer></script>
 </head>
 <body>
 
@@ -372,6 +364,7 @@ footer{background:var(--ink);padding:28px 52px;display:flex;align-items:center;j
     <li><button onclick="goTo('home','about-a')">About</button></li>
     <li><button id="nb-workshops" onclick="showPage('workshops')">Growth Programmes</button></li>
     <li><button id="nb-blog" onclick="showPage('blog')">Blog</button></li>
+    <li><a id="nb-growth-blueprint" href="growth-blueprint.html">Growth Blueprint</a></li>
     <li><a id="nb-ppa" href="ppa-member.html">PPA Members</a></li>
     <li><button class="nav-cta" onclick="goTo('home','contact-a')">Start a conversation</button></li>
   </ul>
@@ -651,6 +644,30 @@ footer{background:var(--ink);padding:28px 52px;display:flex;align-items:center;j
         <p style="font-size:14.5px;color:var(--bd);font-weight:300;max-width:44ch;margin:0;">We're a proud <strong style="font-weight:600;color:var(--d);">PPA Associate Member</strong> &mdash; closer to publishing, so our advice stays sharper for it.</p>
       </div>
       <a href="ppa-member.html" class="btn-gd" style="color:var(--m);">PPA members: see your offer &rarr;</a>
+    </div>
+  </div>
+</sec>
+
+<!-- ═══ GROWTH BLUEPRINT ══════════════════════════════════════════════ -->
+<sec style="background:var(--wm);padding:88px 52px;">
+  <div class="si" style="display:grid;grid-template-columns:1fr 360px;gap:64px;align-items:center;">
+    <div>
+      <p class="ey ey-amd">Free Diagnostic</p>
+      <h2 class="h2">Where is your next three years of growth<br><em>actually coming from?</em></h2>
+      <div class="rl"></div>
+      <p style="font-size:15.5px;font-weight:300;color:var(--bd);line-height:1.8;max-width:520px;margin-bottom:28px;">Growth Blueprint is a free, ten-minute commercial health check &mdash; including <strong style="font-weight:600;color:var(--d);">Seam Tax&trade;</strong>, our flagship diagnostic for finding exactly where friction between your teams is costing you revenue. Answer a short set of questions and get a board-ready report, personalised to your business.</p>
+      <a href="growth-blueprint.html" class="btn-p">Run your Growth Blueprint &rarr;</a>
+    </div>
+    <div style="background:var(--wh);border:1px solid var(--rl);border-radius:6px;padding:32px 28px;">
+      <p style="font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--mt);margin-bottom:14px;">Seam Tax&trade;</p>
+      <div class="sn" style="font-size:34px;color:var(--am);margin-bottom:4px;">&pound;1.84M</div>
+      <p style="font-size:11.5px;color:var(--mt);margin-bottom:22px;">Estimated annual leakage</p>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:18px;">
+        <div style="height:6px;border-radius:3px;background:#B4482F;width:88%;"></div>
+        <div style="height:6px;border-radius:3px;background:var(--am);width:64%;"></div>
+        <div style="height:6px;border-radius:3px;background:var(--m);width:31%;"></div>
+      </div>
+      <p style="font-size:10px;color:var(--mt);font-style:italic;">Illustrative &mdash; your results will differ</p>
     </div>
   </div>
 </sec>
@@ -1115,7 +1132,8 @@ footer{background:var(--ink);padding:28px 52px;display:flex;align-items:center;j
   <div class="fl">
     <a href="https://www.linkedin.com/in/lucystamp/" target="_blank" rel="noopener">LinkedIn</a>
     <a href="mailto:lucy@lifecyclestudio.co.uk">Email</a>
-    <a href="#">Privacy Policy</a>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="#" onclick="window.openCookieSettings&&window.openCookieSettings();return false;">Cookie Settings</a>
   </div>
 </footer>
 

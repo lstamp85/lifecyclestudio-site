@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growth Blueprint — MVP Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14181F;
+    --ink-soft:#565D6B;
+    --paper:#F3F2EE;
+    --paper-raised:#FFFFFF;
+    --line:#DCD9D0;
+    --brand:#1F4B43;
+    --brand-soft:#E6ECE9;
+    --risk-high:#B4482F;
+    --risk-med:#C48A3A;
+    --risk-low:#6B8F71;
+    --display: 'Fraunces', serif;
+    --body: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased;}
+  .app{max-width:1180px;margin:0 auto;padding:0 40px 100px;}
+
+  header{display:flex;justify-content:space-between;align-items:flex-end;padding:44px 0 28px;border-bottom:1px solid var(--line);margin-bottom:40px;}
+  .brand-mark{display:flex;flex-direction:column;gap:4px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);}
+  .wordmark{font-family:var(--display);font-size:26px;font-weight:500;letter-spacing:-0.01em;}
+  .wordmark em{font-style:normal;color:var(--brand);}
+  nav.stepper{display:flex;gap:0;}
+  .step{display:flex;align-items:center;gap:10px;padding:0 22px;cursor:pointer;border-left:1px solid var(--line);opacity:.4;transition:opacity .2s ease;}
+  .step:first-child{border-left:none;padding-left:0;}
+  .step.active,.step.done{opacity:1;}
+  .step-num{font-family:var(--mono);font-size:12px;color:var(--ink-soft);width:22px;height:22px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .step.active .step-num{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .step.done .step-num{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .step-label{font-size:13px;font-weight:500;}
+
+  section.view{display:none;animation:fade .4s ease;}
+  section.view.active{display:block;}
+  .subview{display:none;}
+  .subview.active{display:block;animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  h1.title{font-family:var(--display);font-size:40px;font-weight:500;letter-spacing:-0.01em;margin:0 0 10px;}
+  p.lede{font-size:16px;color:var(--ink-soft);max-width:600px;line-height:1.6;margin:0 0 44px;}
+
+  .btn{font-family:var(--body);font-weight:500;font-size:14px;background:var(--ink);color:#fff;border:none;padding:14px 28px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .15s ease;}
+  .btn:hover{background:var(--brand);}
+  .btn:disabled{opacity:.35;cursor:not-allowed;}
+  .btn:disabled:hover{background:var(--ink);}
+  .btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:36px;}
+  .btn-ghost{background:none;color:var(--ink-soft);border:1px solid var(--line);}
+  .btn-ghost:hover{background:none;border-color:var(--ink);color:var(--ink);}
+  .btn-sm{padding:8px 14px;font-size:12.5px;}
+
+  /* ---------- MODULE 1: HEALTH CHECK ---------- */
+  .hc-shell{display:grid;grid-template-columns:1fr 300px;gap:60px;}
+  .progress-track{height:2px;background:var(--line);margin-bottom:36px;position:relative;}
+  .progress-fill{height:2px;background:var(--brand);width:0%;transition:width .5s ease;}
+  .q-category{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:14px;}
+  .q-text{font-family:var(--display);font-size:26px;font-weight:500;line-height:1.35;margin-bottom:36px;max-width:520px;}
+  .scale{display:flex;gap:10px;}
+  .scale button{flex:1;padding:16px 0;border:1px solid var(--line);background:var(--paper-raised);font-family:var(--mono);font-size:13px;color:var(--ink-soft);cursor:pointer;transition:all .15s ease;}
+  .scale button:hover{border-color:var(--brand);color:var(--brand);}
+  .scale button.selected{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .scale-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-soft);margin-top:8px;}
+  .hc-aside{border-left:1px solid var(--line);padding-left:40px;}
+  .hc-aside .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;}
+  .hc-aside p{font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin:0 0 28px;}
+
+  .score-hero{display:flex;gap:64px;align-items:center;margin-bottom:56px;}
+  .score-ring{position:relative;width:180px;height:180px;flex-shrink:0;}
+  .score-ring svg{transform:rotate(-90deg);}
+  .score-ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .score-ring-num .n{font-family:var(--display);font-size:44px;font-weight:500;}
+  .score-ring-num .l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);}
+  .score-desc h2{font-family:var(--display);font-size:24px;font-weight:500;margin:0 0 10px;}
+  .score-desc p{font-size:14.5px;color:var(--ink-soft);line-height:1.6;max-width:440px;margin:0;}
+  .breakdown{display:grid;grid-template-columns:repeat(5,1fr);gap:22px;margin-bottom:52px;}
+  .bd-item .bd-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;min-height:26px;}
+  .bd-bar-track{height:5px;background:var(--line);margin-bottom:8px;}
+  .bd-bar-fill{height:5px;background:var(--brand);width:0%;transition:width 1s cubic-bezier(.2,.8,.2,1);}
+  .bd-val{font-family:var(--mono);font-size:13px;}
+
+  /* ---------- MODULE 2: SEAM TAX — SETUP ---------- */
+  .setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-bottom:20px;}
+  .field{margin-bottom:26px;}
+  .field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;}
+  .field input[type=text],.field input[type=number]{
+    width:100%;padding:13px 14px;border:1px solid var(--line);background:var(--paper-raised);
+    font-family:var(--body);font-size:14.5px;color:var(--ink);
+  }
+  .field input:focus{outline:none;border-color:var(--brand);}
+  .field .hint{font-size:12px;color:var(--ink-soft);margin-top:8px;line-height:1.5;}
+
+  .fn-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .fn-row input[type=text]{flex:1;padding:11px 12px;border:1px solid var(--line);background:var(--paper-raised);font-size:13.5px;}
+  .fn-row .fn-arrows{display:flex;flex-direction:column;gap:1px;}
+  .fn-row .fn-arrows button, .fn-row .fn-remove{
+    width:26px;height:22px;border:1px solid var(--line);background:var(--paper-raised);color:var(--ink-soft);
+    cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;
+  }
+  .fn-row .fn-remove{height:auto;align-self:stretch;width:30px;}
+  .fn-row .fn-arrows button:hover,.fn-remove:hover{border-color:var(--ink);color:var(--ink);}
+  .fn-add{font-family:var(--mono);font-size:12px;color:var(--brand);background:none;border:1px dashed var(--line);width:100%;padding:10px;cursor:pointer;margin-top:4px;}
+  .fn-add:hover{border-color:var(--brand);}
+  .toggle-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line);}
+  .toggle-row:last-child{border-bottom:1px solid var(--line);}
+  .toggle-row label{font-size:13.5px;font-weight:500;flex:1;}
+  .toggle-row .desc{font-size:12px;color:var(--ink-soft);}
+  .switch{position:relative;width:38px;height:22px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;inset:0;background:var(--line);cursor:pointer;transition:.2s;}
+  .slider:before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;transition:.2s;}
+  .switch input:checked + .slider{background:var(--brand);}
+  .switch input:checked + .slider:before{transform:translateX(16px);}
+  .seam-preview{font-size:12.5px;color:var(--ink-soft);margin-top:18px;line-height:1.7;padding:16px;background:var(--brand-soft);border-left:2px solid var(--brand);}
+  .seam-preview strong{color:var(--ink);}
+
+  /* ---------- MODULE 2: SEAM TAX — QUESTIONS ---------- */
+  .seamq-shell{display:grid;grid-template-columns:1fr 300px;gap:60px;}
+  .seam-badge{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);margin-bottom:14px;}
+
+  /* ---------- MODULE 2: SEAM TAX — MAP ---------- */
+  .st-headline{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:44px;flex-wrap:wrap;gap:24px;}
+  .st-total .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
+  .st-total .v{font-family:var(--display);font-size:48px;font-weight:500;color:var(--risk-high);}
+  .st-legend{display:flex;gap:20px;}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-soft);}
+  .dot{width:9px;height:9px;border-radius:50%;}
+  .st-shell{display:grid;grid-template-columns:1fr 340px;gap:50px;align-items:start;}
+  .map-frame{border:1px solid var(--line);background:var(--paper-raised);padding:20px;}
+  .map-hint{font-size:12px;color:var(--ink-soft);text-align:center;margin-top:14px;}
+  .seam-panel{border:1px solid var(--line);background:var(--paper-raised);padding:30px;min-height:420px;}
+  .seam-panel .placeholder{color:var(--ink-soft);font-size:14px;line-height:1.7;padding-top:20px;}
+  .seam-panel .sp-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;}
+  .seam-panel h3{font-family:var(--display);font-size:22px;font-weight:500;margin:0 0 20px;}
+  .sp-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:12px 0;}
+  .sp-row:first-of-type{border-top:1px solid var(--line);}
+  .sp-row .sp-k{font-size:12.5px;color:var(--ink-soft);}
+  .sp-row .sp-v{font-family:var(--mono);font-size:13px;text-align:right;max-width:190px;}
+  .risk-tag{font-family:var(--mono);font-size:11px;padding:3px 9px;letter-spacing:.04em;}
+  .risk-tag.high{background:#F7E9E4;color:var(--risk-high);}
+  .risk-tag.med{background:#F6EEDD;color:var(--risk-med);}
+  .risk-tag.low{background:#E9EFEA;color:var(--risk-low);}
+  .sp-cause{font-size:13.5px;line-height:1.7;color:var(--ink);margin-top:18px;}
+
+  /* ---------- MODULE 3: EXECUTIVE REPORT ---------- */
+  .report{background:var(--paper-raised);border:1px solid var(--line);padding:64px 72px;}
+  .report-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--ink);padding-bottom:24px;margin-bottom:40px;}
+  .report-head .rh-title{font-family:var(--display);font-size:30px;font-weight:500;}
+  .report-head .rh-meta{text-align:right;font-family:var(--mono);font-size:11px;color:var(--ink-soft);line-height:1.8;}
+  .r-section{margin-bottom:44px;}
+  .r-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);margin-bottom:14px;}
+  .r-section h2{font-family:var(--display);font-size:22px;font-weight:500;margin:0 0 16px;}
+  .r-section p{font-size:14.5px;line-height:1.75;color:var(--ink-soft);max-width:680px;}
+  .r-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin:24px 0;border:1px solid var(--line);}
+  .r-grid-cell{background:var(--paper-raised);padding:20px;}
+  .r-grid-cell .g-num{font-family:var(--display);font-size:26px;font-weight:500;}
+  .r-grid-cell .g-label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-top:6px;}
+  ol.priorities{margin:0;padding-left:0;list-style:none;counter-reset:p;}
+  ol.priorities li{counter-increment:p;display:flex;gap:18px;padding:16px 0;border-bottom:1px solid var(--line);}
+  ol.priorities li::before{content:counter(p,decimal-leading-zero);font-family:var(--mono);font-size:12px;color:var(--brand);padding-top:2px;}
+  ol.priorities li .pt{font-weight:500;font-size:14.5px;margin-bottom:4px;}
+  ol.priorities li .pd{font-size:13px;color:var(--ink-soft);line-height:1.6;}
+  ul.board-q{margin:0;padding:0;list-style:none;}
+  ul.board-q li{font-family:var(--display);font-style:italic;font-size:16.5px;line-height:1.7;padding:14px 0;border-bottom:1px solid var(--line);}
+  .report-foot{display:flex;justify-content:space-between;margin-top:56px;padding-top:20px;border-top:1px solid var(--line);font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);}
+
+  .cta-block{margin-top:12px;background:var(--brand);color:#fff;padding:36px 40px;display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap;}
+  .cta-block .cta-text h3{font-family:var(--display);font-size:20px;font-weight:500;margin:0 0 8px;color:#fff;}
+  .cta-block .cta-text p{font-size:13.5px;color:#D8E5E1;margin:0;max-width:440px;line-height:1.6;}
+  .cta-btn{background:#fff;color:var(--brand);border:none;padding:14px 26px;font-family:var(--body);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:8px;flex-shrink:0;}
+  .cta-btn:hover{background:#F3F2EE;}
+  .stat-source{font-size:11px;color:var(--ink-soft);margin-top:10px;}
+
+  .app.gate-open{filter:blur(9px);pointer-events:none;user-select:none;}
+  #emailGate{position:fixed;inset:0;background:rgba(20,24,31,0.6);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  #emailGate.active{display:flex;}
+  .gate-card{background:#fff;max-width:460px;width:100%;padding:48px 44px;box-shadow:0 24px 70px rgba(0,0,0,.28);}
+  .gate-card .eyebrow{margin-bottom:10px;}
+  .gate-card h2{font-family:var(--display);font-size:26px;font-weight:500;margin:0 0 10px;line-height:1.25;}
+  .gate-card p.gate-lede{font-size:14px;color:var(--ink-soft);line-height:1.6;margin:0 0 24px;}
+  .gate-teaser{display:flex;gap:0;margin-bottom:28px;border:1px solid var(--line);}
+  .gate-teaser .gt-item{flex:1;text-align:center;padding:16px 8px;}
+  .gate-teaser .gt-item:first-child{border-right:1px solid var(--line);}
+  .gate-teaser .gt-num{font-family:var(--display);font-size:24px;font-weight:500;}
+  .gate-teaser .gt-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-top:4px;}
+  .gate-card .field{margin-bottom:16px;}
+  .gate-card .field label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:7px;}
+  .gate-card .field input{width:100%;padding:12px 14px;border:1px solid var(--line);font-family:var(--body);font-size:14px;}
+  .gate-card .field input:focus{outline:none;border-color:var(--brand);}
+  .gate-error{color:var(--risk-high);font-size:12px;margin:-8px 0 14px;display:none;}
+  .gate-privacy{font-size:11px;color:var(--ink-soft);line-height:1.5;margin-top:14px;}
+  .gate-skip{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:18px;cursor:pointer;text-decoration:underline;}
+
+  @media (max-width:900px){
+    .app{padding:0 20px 60px;}
+    header{flex-direction:column;align-items:flex-start;gap:20px;}
+    .hc-shell,.st-shell,.seamq-shell,.setup-grid{grid-template-columns:1fr;}
+    .hc-aside{border-left:none;padding-left:0;border-top:1px solid var(--line);padding-top:24px;}
+    .breakdown{grid-template-columns:repeat(2,1fr);}
+    .score-hero{flex-direction:column;align-items:flex-start;gap:28px;}
+    .report{padding:36px 24px;}
+    .report-head{flex-direction:column;gap:14px;}
+    .report-head .rh-meta{text-align:left;}
+    .r-grid{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+<script src="/cookie-consent.js" defer></script>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="brand-mark">
+      <span class="eyebrow">Lifecycle Studio</span>
+      <span class="wordmark">Growth <em>Blueprint</em></span>
+    </div>
+    <nav class="stepper">
+      <div class="step active" data-goto="view-1" id="nav-1"><span class="step-num">1</span><span class="step-label">Health Check</span></div>
+      <div class="step" data-goto="view-2" id="nav-2"><span class="step-num">2</span><span class="step-label">Seam Tax</span></div>
+      <div class="step" data-goto="view-3" id="nav-3"><span class="step-num">3</span><span class="step-label">Executive Report</span></div>
+    </nav>
+  </header>
+
+  <!-- ===================== VIEW 1: HEALTH CHECK ===================== -->
+  <section class="view active" id="view-1">
+    <div id="hc-quiz">
+      <h1 class="title">Commercial Growth Health Check</h1>
+      <p class="lede">Ten questions in, one number out. This is the diagnostic every strategy conversation should start from.</p>
+      <div class="hc-shell">
+        <div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="q-category" id="qCategory">Strategy</div>
+          <div class="q-text" id="qText">—</div>
+          <div class="scale">
+            <button data-val="1">1</button><button data-val="2">2</button><button data-val="3">3</button><button data-val="4">4</button><button data-val="5">5</button>
+          </div>
+          <div class="scale-labels"><span>Not at all</span><span>Completely</span></div>
+        </div>
+        <div class="hc-aside">
+          <div class="k">Question</div><p id="qCounter">01 / 10</p>
+          <div class="k">Why we ask</div><p id="qWhy">—</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-reveal" id="scoreReveal" style="display:none;">
+      <h1 class="title">Your Growth Score</h1>
+      <p class="lede">Calculated across ten questions spanning strategy, customer, product and execution.</p>
+      <div class="score-hero">
+        <div class="score-ring">
+          <svg width="180" height="180" viewBox="0 0 180 180">
+            <circle cx="90" cy="90" r="80" fill="none" stroke="#DCD9D0" stroke-width="10"/>
+            <circle id="ringFill" cx="90" cy="90" r="80" fill="none" stroke="#1F4B43" stroke-width="10" stroke-linecap="butt" stroke-dasharray="502" stroke-dashoffset="502"/>
+          </svg>
+          <div class="score-ring-num"><span class="n" id="scoreNum">0</span><span class="l">out of 100</span></div>
+        </div>
+        <div class="score-desc"><h2 id="scoreBand">—</h2><p id="scoreDesc">—</p></div>
+      </div>
+      <div class="breakdown" id="breakdown"></div>
+      <div class="btn-row">
+        <button class="btn-ghost btn" onclick="restartQuiz()">Retake check</button>
+        <button class="btn" onclick="goTo('view-2')">Continue to Seam Tax Assessment →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VIEW 2: SEAM TAX ===================== -->
+  <section class="view" id="view-2">
+
+    <!-- 2a. SETUP -->
+    <div class="subview active" id="st-setup">
+      <h1 class="title">Tell us how your business works</h1>
+      <p class="lede">Seam Tax is personalised to your organisation, not a generic template. Set your functions and revenue, and the assessment builds itself around your actual customer journey.</p>
+
+      <div class="setup-grid">
+        <div>
+          <div class="field">
+            <label>Business name</label>
+            <input type="text" id="inBusinessName" placeholder="e.g. Northfield & Co" value="">
+          </div>
+          <div class="field">
+            <label>Annual revenue (£)</label>
+            <input type="number" id="inRevenue" placeholder="e.g. 5000000" value="5000000" min="0" step="10000">
+            <div class="hint">Used to convert friction scores into estimated leakage. Kept confidential — used only in this assessment.</div>
+          </div>
+          <div class="toggle-row">
+            <label>Include Leadership seam</label>
+            <label class="switch"><input type="checkbox" id="chkLeadership" checked><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <label>Include Finance seam</label>
+            <label class="switch"><input type="checkbox" id="chkFinance" checked><span class="slider"></span></label>
+          </div>
+          <div class="seam-preview" id="seamPreview">—</div>
+        </div>
+
+        <div>
+          <div class="field" style="margin-bottom:12px;">
+            <label>Core functions, in customer journey order</label>
+            <div class="hint" style="margin-top:0;margin-bottom:14px;">Most friction lives at the joins between consecutive functions — order them the way a customer actually moves through your business.</div>
+          </div>
+          <div id="fnList"></div>
+          <button class="fn-add" onclick="addFunction()">+ Add a function</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <span></span>
+        <button class="btn" id="btnStartSeamQ" onclick="startSeamQuestions()">Begin Seam Assessment →</button>
+      </div>
+    </div>
+
+    <!-- 2b. QUESTIONS -->
+    <div class="subview" id="st-questions">
+      <h1 class="title">Where does the friction actually sit?</h1>
+      <p class="lede">Answer based on what actually happens, not what should happen.</p>
+      <div class="seamq-shell">
+        <div>
+          <div class="progress-track"><div class="progress-fill" id="sqProgressFill"></div></div>
+          <div class="seam-badge" id="sqSeamLabel">—</div>
+          <div class="q-text" id="sqText">—</div>
+          <div class="scale" id="sqScale">
+            <button data-val="1">1</button><button data-val="2">2</button><button data-val="3">3</button><button data-val="4">4</button><button data-val="5">5</button>
+          </div>
+          <div class="scale-labels"><span>Rarely / never</span><span>Constantly</span></div>
+        </div>
+        <div class="hc-aside">
+          <div class="k">Question</div><p id="sqCounter">01 / 00</p>
+          <div class="k">Seam</div><p id="sqSeamPair">—</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2c. MAP -->
+    <div class="subview" id="st-map">
+      <h1 class="title" id="mapTitle">Seam Tax Assessment</h1>
+      <p class="lede" id="mapLede">Select a connection to see what it's costing.</p>
+      <div class="st-headline">
+        <div class="st-total"><div class="k">Estimated annual leakage</div><div class="v" id="stTotal">£0</div></div>
+        <div class="st-legend">
+          <div class="legend-item"><span class="dot" style="background:#B4482F"></span>High friction</div>
+          <div class="legend-item"><span class="dot" style="background:#C48A3A"></span>Medium friction</div>
+          <div class="legend-item"><span class="dot" style="background:#6B8F71"></span>Low friction</div>
+        </div>
+      </div>
+      <div class="st-shell">
+        <div>
+          <div class="map-frame"><svg id="seamMap" width="100%" viewBox="0 0 640 560"></svg></div>
+          <div class="map-hint">Click any line to inspect that seam</div>
+        </div>
+        <div class="seam-panel" id="seamPanel"><div class="placeholder">Select a seam on the map to see estimated leakage, risk level, likely cause and priority.</div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-ghost btn" onclick="goTo('view-1')">← Back to Health Check</button>
+        <button class="btn" onclick="showEmailGate()">Generate Executive Report →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VIEW 3: EXECUTIVE REPORT ===================== -->
+  <section class="view" id="view-3">
+    <h1 class="title">Executive Report</h1>
+    <p class="lede">Automatically compiled from the Health Check and Seam Tax Assessment. Board-ready, as generated.</p>
+    <div class="report">
+      <div class="report-head">
+        <div class="rh-title" id="repTitle">Growth Blueprint — Executive Summary</div>
+        <div class="rh-meta" id="repMeta">—</div>
+      </div>
+      <div class="r-section">
+        <div class="r-eyebrow">Executive Summary</div>
+        <p id="repSummary">—</p>
+      </div>
+      <div class="r-grid">
+        <div class="r-grid-cell"><div class="g-num" id="repGrowthScore">—</div><div class="g-label">Growth Score</div></div>
+        <div class="r-grid-cell" style="color:#B4482F"><div class="g-num" id="repSeamTotal">—</div><div class="g-label">Seam Tax</div></div>
+        <div class="r-grid-cell"><div class="g-num" id="repAlignment">—</div><div class="g-label">Leadership Alignment</div></div>
+        <div class="r-grid-cell"><div class="g-num" id="repAI">—</div><div class="g-label">AI Readiness</div></div>
+      </div>
+      <div class="r-section">
+        <div class="r-eyebrow">Seam Tax Analysis</div>
+        <p id="repSeamAnalysis">—</p>
+      </div>
+      <div class="r-section">
+        <div class="r-eyebrow">90-Day Priorities</div>
+        <ol class="priorities" id="repPriorities"></ol>
+      </div>
+      <div class="r-section">
+        <div class="r-eyebrow">Questions for the Board</div>
+        <ul class="board-q" id="repBoardQ"></ul>
+      </div>
+      <div class="r-section">
+        <div class="r-eyebrow">Recommended Next Steps</div>
+        <p id="repNextStepsIntro">—</p>
+        <ol class="priorities" id="repNextSteps"></ol>
+        <div class="cta-block">
+          <div class="cta-text">
+            <h3 id="ctaHeadline">Ready to close these seams?</h3>
+            <p id="ctaBody">A 30-minute call with Lifecycle Studio to walk through your results, agree ownership, and scope the first sprint.</p>
+          </div>
+          <a href="https://calendly.com/lucy-lifecyclestudio/30min" target="_blank" rel="noopener" class="cta-btn">Book a consultation call →</a>
+        </div>
+      </div>
+      <div class="report-foot"><span>GROWTH BLUEPRINT — LIFECYCLE STUDIO</span><span>PHASE 1 PROTOTYPE — GENERATED FROM YOUR INPUTS</span></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-ghost btn" onclick="goTo('view-2')">← Back to Seam Tax</button>
+      <button class="btn" onclick="window.print()">Export report ↓</button>
+    </div>
+  </section>
+
+</div>
+
+<div id="emailGate">
+  <div class="gate-card">
+    <div class="eyebrow">Your Results Are Ready</div>
+    <h2>See your full Executive Report</h2>
+    <p class="gate-lede">Your Growth Score and Seam Tax total are calculated. Enter your details to unlock the full breakdown, gap analysis and 90-day priorities.</p>
+
+    <div class="gate-teaser">
+      <div class="gt-item"><div class="gt-num" id="gateScore">—</div><div class="gt-label">Growth Score</div></div>
+      <div class="gt-item"><div class="gt-num" id="gateSeamTotal" style="color:#B4482F;">—</div><div class="gt-label">Est. Seam Tax</div></div>
+    </div>
+
+    <form id="emailGateForm" name="growth-blueprint-leads" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="growth-blueprint-leads">
+      <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
+      <div class="field"><label>Full name</label><input type="text" id="gateName" name="name" required></div>
+      <div class="field"><label>Work email</label><input type="email" id="gateEmail" name="email" required></div>
+      <div class="field"><label>Company</label><input type="text" id="gateCompany" name="company"></div>
+      <div class="gate-error" id="gateError">Enter a valid work email to continue.</div>
+      <button type="submit" class="btn" style="width:100%;justify-content:center;">Unlock my Executive Report →</button>
+    </form>
+    <p class="gate-privacy">Used to send your report and follow up about these results. See our <a href="/privacy" style="color:inherit;">privacy notice</a>. No spam, unsubscribe any time.</p>
+    <div class="gate-skip" id="gateSubmitError" style="display:none;color:#B4482F;">Couldn't save your details — you can still continue.</div>
+  </div>
+</div>
+
+<script>
+  // ===================== NAV =====================
+  function goTo(id){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    ['1','2','3'].forEach(n=>{
+      const el=document.getElementById('nav-'+n);
+      el.classList.remove('active','done');
+      const target=parseInt(id.split('-')[1]);
+      if(parseInt(n)===target) el.classList.add('active');
+      else if(parseInt(n)<target) el.classList.add('done');
+    });
+    if(id==='view-3') renderExecutiveReport();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.querySelectorAll('.step').forEach(s=>s.addEventListener('click',()=>goTo(s.dataset.goto)));
+
+  // ===================== MODULE 1: HEALTH CHECK =====================
+  const questions=[
+    {cat:"Strategy",q:"How clearly can your leadership team state next year's single biggest growth priority?",why:"Strategic clarity is the strongest predictor of whether growth investment lands where it's needed."},
+    {cat:"Customer",q:"How well does customer behaviour data actually change what your teams do day to day?",why:"Data that isn't acted on is just reporting. This tests whether insight reaches decisions."},
+    {cat:"Product",q:"How confident are you that your roadmap reflects what's driving retention, not just what's loudest?",why:"Roadmaps built on internal noise rather than retention signal quietly erode growth."},
+    {cat:"Pricing",q:"When did you last change pricing in response to evidence, rather than instinct?",why:"Pricing is the fastest lever on profit, and the one most companies touch least often."},
+    {cat:"Lifecycle",q:"How seamless is the handoff from acquisition to onboarding to ongoing engagement?",why:"Most Seam Tax is created exactly here — at the joins between lifecycle stages."},
+    {cat:"AI",q:"How much of your current AI activity is tied to a measurable commercial outcome?",why:"AI Readiness isn't about tools adopted — it's about outcomes attached to them."},
+    {cat:"Technology",q:"How confident are you that your systems reflect reality, not just process on paper?",why:"Disconnected systems are where Seam Tax becomes invisible until it shows up in the numbers."},
+    {cat:"Culture",q:"How comfortable are your teams raising friction between departments before it becomes a crisis?",why:"Cultures that surface friction early resolve it for a fraction of the cost."},
+    {cat:"Organisation",q:"How clearly is commercial ownership assigned across the customer journey?",why:"Unclear ownership is the single most common cause of dropped handoffs."},
+    {cat:"Execution",q:"How often do agreed priorities actually survive contact with the next quarter?",why:"Execution confidence measures whether strategy work translates into delivered change."}
+  ];
+  let current=0;
+  const answers=[];
+  let hcScore=0;
+  let hcBreakdown=[];
+
+  function renderQuestion(){
+    const q=questions[current];
+    document.getElementById('qCategory').textContent=q.cat;
+    document.getElementById('qText').textContent=q.q;
+    document.getElementById('qWhy').textContent=q.why;
+    document.getElementById('qCounter').textContent=String(current+1).padStart(2,'0')+' / '+questions.length;
+    document.getElementById('progressFill').style.width=((current)/questions.length*100)+'%';
+    document.querySelectorAll('#hc-quiz .scale button').forEach(b=>b.classList.remove('selected'));
+  }
+  document.querySelectorAll('#hc-quiz .scale button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('#hc-quiz .scale button').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      answers.push(parseInt(btn.dataset.val));
+      setTimeout(()=>{
+        current++;
+        if(current<questions.length) renderQuestion();
+        else{document.getElementById('progressFill').style.width='100%';showScore();}
+      },260);
+    });
+  });
+  function restartQuiz(){
+    current=0;answers.length=0;
+    document.getElementById('hc-quiz').style.display='block';
+    document.getElementById('scoreReveal').style.display='none';
+    renderQuestion();
+  }
+  function showScore(){
+    document.getElementById('hc-quiz').style.display='none';
+    document.getElementById('scoreReveal').style.display='block';
+    const avg=answers.reduce((a,b)=>a+b,0)/answers.length;
+    const score=Math.round((avg/5)*100);
+    hcScore=score;
+    const scoreNum=document.getElementById('scoreNum');
+    const ring=document.getElementById('ringFill');
+    const circumference=502;
+    let n=0;
+    const anim=setInterval(()=>{
+      n++;scoreNum.textContent=n;ring.style.strokeDashoffset=circumference-(circumference*(n/100));
+      if(n>=score){clearInterval(anim);scoreNum.textContent=score;ring.style.strokeDashoffset=circumference-(circumference*(score/100));}
+    },14);
+    let band,desc;
+    if(score>=80){band="Compounding Growth";desc="Commercial fundamentals and coordination are both strong. The priority now is protecting what's working while testing bolder moves.";}
+    else if(score>=60){band="Building Momentum";desc="Commercial fundamentals are in place, but growth is not yet compounding. The gap is usually in the seams between functions, not within any one of them.";}
+    else{band="Foundational Gaps";desc="Before pursuing new growth initiatives, the seams between core functions need attention — otherwise new investment leaks through the same gaps.";}
+    document.getElementById('scoreBand').textContent=band;
+    document.getElementById('scoreDesc').textContent=desc;
+    hcBreakdown=[
+      {label:"Commercial Maturity",val:Math.min(100,Math.round(score*0.95))},
+      {label:"Customer Maturity",val:Math.min(100,Math.round(score*1.05))},
+      {label:"AI Readiness",val:Math.round(score*0.72)},
+      {label:"Leadership Alignment",val:Math.round(score*0.88)},
+      {label:"Execution Confidence",val:Math.round(score*0.8)},
+    ];
+    const bdEl=document.getElementById('breakdown');
+    bdEl.innerHTML='';
+    hcBreakdown.forEach(b=>{
+      const div=document.createElement('div');
+      div.className='bd-item';
+      div.innerHTML=`<div class="bd-label">${b.label}</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:0%" data-w="${b.val}"></div></div><div class="bd-val">${b.val}</div>`;
+      bdEl.appendChild(div);
+    });
+    setTimeout(()=>{document.querySelectorAll('.bd-bar-fill').forEach(f=>{f.style.width=f.dataset.w+'%';});},100);
+  }
+  renderQuestion();
+
+  // ===================== MODULE 2: SEAM TAX =====================
+
+  // --- 2a. Setup: function list management ---
+  let journeyFunctions=["Marketing","Sales","Product","Customer Success"];
+
+  function renderFnList(){
+    const el=document.getElementById('fnList');
+    el.innerHTML='';
+    journeyFunctions.forEach((name,i)=>{
+      const row=document.createElement('div');
+      row.className='fn-row';
+      row.innerHTML=`
+        <input type="text" value="${name}" data-i="${i}" class="fn-name-input">
+        <div class="fn-arrows">
+          <button ${i===0?'disabled':''} onclick="moveFunction(${i},-1)" title="Move earlier">↑</button>
+          <button ${i===journeyFunctions.length-1?'disabled':''} onclick="moveFunction(${i},1)" title="Move later">↓</button>
+        </div>
+        <button class="fn-remove" onclick="removeFunction(${i})" ${journeyFunctions.length<=2?'disabled':''} title="Remove">✕</button>
+      `;
+      el.appendChild(row);
+    });
+    el.querySelectorAll('.fn-name-input').forEach(inp=>{
+      inp.addEventListener('input',(e)=>{
+        journeyFunctions[parseInt(e.target.dataset.i)]=e.target.value;
+        updateSeamPreview();
+      });
+    });
+    updateSeamPreview();
+  }
+  function addFunction(){
+    journeyFunctions.push("New function");
+    renderFnList();
+  }
+  function removeFunction(i){
+    if(journeyFunctions.length<=2) return;
+    journeyFunctions.splice(i,1);
+    renderFnList();
+  }
+  function moveFunction(i,dir){
+    const j=i+dir;
+    if(j<0||j>=journeyFunctions.length) return;
+    [journeyFunctions[i],journeyFunctions[j]]=[journeyFunctions[j],journeyFunctions[i]];
+    renderFnList();
+  }
+  function updateSeamPreview(){
+    const seams=buildSeamStructure();
+    const preview=document.getElementById('seamPreview');
+    const list=seams.map(s=>`${s.a} ↔ ${s.b}`).join(' · ');
+    preview.innerHTML=`<strong>${seams.length} seam${seams.length===1?'':'s'} will be assessed:</strong> ${list}`;
+  }
+  document.getElementById('chkLeadership').addEventListener('change',updateSeamPreview);
+  document.getElementById('chkFinance').addEventListener('change',updateSeamPreview);
+  renderFnList();
+
+  function buildSeamStructure(){
+    const names=journeyFunctions.map(n=>n.trim()).filter(n=>n.length>0);
+    const seams=[];
+    for(let i=0;i<names.length-1;i++){
+      seams.push({a:names[i],b:names[i+1],type:'sequential'});
+    }
+    if(document.getElementById('chkLeadership').checked && names.length>0){
+      seams.unshift({a:'Leadership',b:names[0],type:'leadership'});
+    }
+    if(document.getElementById('chkFinance').checked && names.length>0){
+      seams.push({a:'Finance',b:names[names.length-1],type:'finance'});
+    }
+    return seams;
+  }
+
+  // --- Question bank ---
+  const questionBank={
+    sequential:[
+      {cause:"Handoff visibility",text:(a,b)=>`How often does ${b} learn about an ${a} commitment only after the customer already knows?`},
+      {cause:"Data lag",text:(a,b)=>`How stale is the ${a} data that ${b} relies on to do its job?`}
+    ],
+    leadership:[
+      {cause:"Strategic clarity gap",text:(a,b)=>`How often does a leadership priority change before ${b} has fully executed it?`},
+      {cause:"Escalation dependency",text:(a,b)=>`How often does progress in ${b} stall until a leader personally steps in?`}
+    ],
+    finance:[
+      {cause:"Margin visibility gap",text:(a,b)=>`How often are decisions in ${b} made without visibility of their margin or cost impact?`},
+      {cause:"Reporting lag",text:(a,b)=>`How stale is the revenue and cost data ${b} uses to make decisions?`}
+    ]
+  };
+
+  let seamStructure=[];
+  let seamQuestionQueue=[]; // flattened {seamIndex, questionIndex, cause, text}
+  let sqCurrent=0;
+  let seamAnswers=[]; // parallel to queue
+
+  function startSeamQuestions(){
+    seamStructure=buildSeamStructure();
+    if(seamStructure.length===0){
+      alert('Add at least two functions to build a seam.');
+      return;
+    }
+    seamQuestionQueue=[];
+    seamStructure.forEach((seam,si)=>{
+      questionBank[seam.type].forEach((qt,qi)=>{
+        seamQuestionQueue.push({seamIndex:si,cause:qt.cause,text:qt.text(seam.a,seam.b),a:seam.a,b:seam.b});
+      });
+    });
+    seamAnswers=new Array(seamQuestionQueue.length).fill(null);
+    sqCurrent=0;
+    switchSubview('st-questions');
+    renderSeamQuestion();
+  }
+
+  function renderSeamQuestion(){
+    const item=seamQuestionQueue[sqCurrent];
+    document.getElementById('sqSeamLabel').textContent=item.a+' ↔ '+item.b;
+    document.getElementById('sqText').textContent=item.text;
+    document.getElementById('sqCounter').textContent=String(sqCurrent+1).padStart(2,'0')+' / '+String(seamQuestionQueue.length).padStart(2,'0');
+    document.getElementById('sqSeamPair').textContent=item.a+' and '+item.b;
+    document.getElementById('sqProgressFill').style.width=(sqCurrent/seamQuestionQueue.length*100)+'%';
+    document.querySelectorAll('#sqScale button').forEach(b=>b.classList.remove('selected'));
+  }
+  document.querySelectorAll('#sqScale button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('#sqScale button').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      seamAnswers[sqCurrent]=parseInt(btn.dataset.val);
+      setTimeout(()=>{
+        sqCurrent++;
+        if(sqCurrent<seamQuestionQueue.length) renderSeamQuestion();
+        else{document.getElementById('sqProgressFill').style.width='100%';computeSeamResults();}
+      },260);
+    });
+  });
+
+  // --- Compute results & render map ---
+  let computedSeams=[];
+  let seamTotalLeak=0;
+  let businessName='';
+  let revenue=0;
+
+  function computeSeamResults(){
+    businessName=document.getElementById('inBusinessName').value.trim()||'Your business';
+    revenue=parseFloat(document.getElementById('inRevenue').value)||0;
+
+    computedSeams=seamStructure.map((seam,si)=>{
+      const qs=seamQuestionQueue.filter(q=>q.seamIndex===si);
+      const idxs=seamQuestionQueue.map((q,i)=>q.seamIndex===si?i:-1).filter(i=>i>=0);
+      const scores=idxs.map(i=>seamAnswers[i]);
+      const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+      let band;
+      if(avg>=3.6) band='high'; else if(avg>=2.2) band='med'; else band='low';
+      const ranges={high:[0.012,0.020],med:[0.005,0.010],low:[0.001,0.003]};
+      const [lowPct,highPct]=ranges[band];
+      const leakLow=revenue*lowPct;
+      const leakHigh=revenue*highPct;
+      const leakMid=(leakLow+leakHigh)/2;
+      // worse (higher-scoring) question determines cause
+      let worstIdx=idxs[0], worstScore=-1;
+      idxs.forEach(i=>{if(seamAnswers[i]>worstScore){worstScore=seamAnswers[i];worstIdx=i;}});
+      const cause=seamQuestionQueue[worstIdx].cause;
+      return {a:seam.a,b:seam.b,type:seam.type,avg,band,leakLow,leakHigh,leakMid,cause};
+    });
+
+    // rank by leakMid desc, assign priority
+    const ranked=[...computedSeams].sort((x,y)=>y.leakMid-x.leakMid);
+    ranked.forEach((s,i)=>{
+      const orig=computedSeams.find(c=>c.a===s.a&&c.b===s.b);
+      if(i<Math.ceil(ranked.length/3)) orig.priority='P1 — highest commercial impact';
+      else if(i<Math.ceil(ranked.length*2/3)) orig.priority='P2 — meaningful, second-tier impact';
+      else orig.priority='P3 — monitor, lower current impact';
+      orig.rank=i;
+    });
+
+    seamTotalLeak=computedSeams.reduce((a,s)=>a+s.leakMid,0);
+
+    switchSubview('st-map');
+    renderSeamMap();
+  }
+
+  function fmtGBP(n){
+    if(n>=1000000) return '£'+(n/1000000).toFixed(2).replace(/\.00$/,'')+'M';
+    if(n>=1000) return '£'+Math.round(n/1000)+'K';
+    return '£'+Math.round(n);
+  }
+
+  function switchSubview(id){
+    document.querySelectorAll('#view-2 .subview').forEach(v=>v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  const riskColor={high:"#B4482F",med:"#C48A3A",low:"#6B8F71"};
+  const riskWidth={high:5,med:3,low:1.5};
+
+  function renderSeamMap(){
+    document.getElementById('mapTitle').textContent=businessName+' — Seam Tax Assessment';
+    document.getElementById('mapLede').textContent='Based on the functions and journey order you set. Click a seam to inspect it.';
+    document.getElementById('stTotal').textContent=fmtGBP(seamTotalLeak);
+
+    const names=journeyFunctions.map(n=>n.trim()).filter(n=>n.length>0);
+    const spacing=130, startX=90, yLine=300;
+    const journeyPos=names.map((name,i)=>({id:name,x:startX+i*spacing,y:yLine}));
+    const width=Math.max(640,startX*2+(names.length-1)*spacing);
+    const positions={};
+    journeyPos.forEach(p=>positions[p.id]=p);
+    if(document.getElementById('chkLeadership').checked) positions['Leadership']={id:'Leadership',x:journeyPos[0].x,y:110};
+    if(document.getElementById('chkFinance').checked) positions['Finance']={id:'Finance',x:journeyPos[journeyPos.length-1].x,y:490};
+
+    const svg=document.getElementById('seamMap');
+    svg.setAttribute('viewBox',`0 0 ${width} 560`);
+    svg.innerHTML='';
+
+    computedSeams.forEach((s,i)=>{
+      const a=positions[s.a], b=positions[s.b];
+      if(!a||!b) return;
+      const line=document.createElementNS("http://www.w3.org/2000/svg","line");
+      line.setAttribute("x1",a.x);line.setAttribute("y1",a.y);
+      line.setAttribute("x2",b.x);line.setAttribute("y2",b.y);
+      line.setAttribute("stroke",riskColor[s.band]);
+      line.setAttribute("stroke-width",riskWidth[s.band]);
+      line.setAttribute("stroke-linecap","round");
+      line.style.cursor="pointer";
+      line.addEventListener('click',()=>selectSeam(i,line));
+      line.addEventListener('mouseenter',()=>{if(selectedLine!==line)line.setAttribute("stroke-width",riskWidth[s.band]+2);});
+      line.addEventListener('mouseleave',()=>{if(selectedLine!==line)line.setAttribute("stroke-width",riskWidth[s.band]);});
+      svg.appendChild(line);
+    });
+    Object.values(positions).forEach(n=>{
+      const g=document.createElementNS("http://www.w3.org/2000/svg","g");
+      const circle=document.createElementNS("http://www.w3.org/2000/svg","circle");
+      circle.setAttribute("cx",n.x);circle.setAttribute("cy",n.y);circle.setAttribute("r",26);
+      circle.setAttribute("fill","#FFFFFF");circle.setAttribute("stroke","#14181F");circle.setAttribute("stroke-width",1.3);
+      const text=document.createElementNS("http://www.w3.org/2000/svg","text");
+      text.setAttribute("x",n.x);text.setAttribute("y",n.y+50);
+      text.setAttribute("text-anchor","middle");
+      text.setAttribute("font-family","IBM Plex Mono, monospace");
+      text.setAttribute("font-size","10.5");
+      text.setAttribute("fill","#565D6B");
+      text.textContent=n.id;
+      g.appendChild(circle);g.appendChild(text);
+      svg.appendChild(g);
+    });
+
+    document.getElementById('seamPanel').innerHTML='<div class="placeholder">Select a seam on the map to see estimated leakage, risk level, likely cause and priority.</div>';
+    selectedLine=null;
+  }
+
+  let selectedLine=null;
+  function selectSeam(i,line){
+    if(selectedLine){
+      const prev=computedSeams[[...document.querySelectorAll('#seamMap line')].indexOf(selectedLine)];
+    }
+    document.querySelectorAll('#seamMap line').forEach((l,idx)=>{
+      l.setAttribute("stroke-width",riskWidth[computedSeams[idx].band]);
+    });
+    selectedLine=line;
+    line.setAttribute("stroke-width",riskWidth[computedSeams[i].band]+2.5);
+
+    const s=computedSeams[i];
+    const riskLabel={high:"High risk",med:"Medium risk",low:"Low risk"};
+    document.getElementById('seamPanel').innerHTML=`
+      <div class="sp-eyebrow">Seam</div>
+      <h3>${s.a} ↔ ${s.b}</h3>
+      <div class="sp-row"><span class="sp-k">Estimated leakage</span><span class="sp-v">${fmtGBP(s.leakLow)}–${fmtGBP(s.leakHigh)} / yr</span></div>
+      <div class="sp-row"><span class="sp-k">Risk level</span><span class="sp-v"><span class="risk-tag ${s.band}">${riskLabel[s.band]}</span></span></div>
+      <div class="sp-row"><span class="sp-k">Priority</span><span class="sp-v">${s.priority}</span></div>
+      <div class="sp-cause"><strong>Likely cause — ${s.cause}.</strong> This was the highest-scoring friction signal between ${s.a} and ${s.b} in your assessment.</div>
+    `;
+  }
+
+  // ===================== EMAIL CAPTURE GATE =====================
+  let leadCapture={name:'',email:'',company:''};
+
+  function showEmailGate(){
+    document.getElementById('gateScore').textContent=hcScore;
+    document.getElementById('gateSeamTotal').textContent=fmtGBP(seamTotalLeak);
+    document.getElementById('gateCompany').value=businessName!=='Your business'?businessName:'';
+    document.querySelector('.app').classList.add('gate-open');
+    document.getElementById('emailGate').classList.add('active');
+  }
+  function hideEmailGate(){
+    document.querySelector('.app').classList.remove('gate-open');
+    document.getElementById('emailGate').classList.remove('active');
+  }
+  document.getElementById('emailGateForm').addEventListener('submit',(e)=>{
+    e.preventDefault();
+    const name=document.getElementById('gateName').value.trim();
+    const email=document.getElementById('gateEmail').value.trim();
+    const company=document.getElementById('gateCompany').value.trim();
+    const emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if(!name||!emailOk){
+      document.getElementById('gateError').style.display='block';
+      return;
+    }
+    document.getElementById('gateError').style.display='none';
+    leadCapture={name,email,company:company||businessName,growthScore:hcScore,seamTax:fmtGBP(seamTotalLeak)};
+
+    // Submit to Netlify Forms (requires deployment on Netlify — see launch notes).
+    const form=document.getElementById('emailGateForm');
+    const body=new URLSearchParams({
+      'form-name':'growth-blueprint-leads',
+      name, email, company:leadCapture.company,
+      'growth-score':String(hcScore),
+      'seam-tax':fmtGBP(seamTotalLeak)
+    }).toString();
+    fetch('/', {method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body})
+      .catch(()=>{document.getElementById('gateSubmitError').style.display='block';});
+
+    hideEmailGate();
+    goTo('view-3');
+  });
+
+  // ===================== MODULE 3: EXECUTIVE REPORT =====================
+  function renderExecutiveReport(){
+    if(computedSeams.length===0) return;
+    const dateStr=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+    document.getElementById('repTitle').textContent=businessName+' — Executive Summary';
+    const preparedFor=leadCapture.name?`${leadCapture.name} (${leadCapture.email})`:'Leadership Team';
+    document.getElementById('repMeta').innerHTML=`PREPARED FOR: ${preparedFor.toUpperCase()}<br>ASSESSMENT DATE: ${dateStr}<br>NEXT REVIEW: Q4 2026`;
+
+    const ranked=[...computedSeams].sort((a,b)=>b.leakMid-a.leakMid);
+    const top=ranked[0];
+    const top3=ranked.slice(0,Math.min(3,ranked.length));
+    const top3Total=top3.reduce((a,s)=>a+s.leakMid,0);
+    const pctOfTotal=seamTotalLeak>0?Math.round((top3Total/seamTotalLeak)*100):0;
+
+    document.getElementById('repSummary').textContent=
+      `Commercial fundamentals reflect a Growth Score of ${hcScore}/100. The constraint on the next stage of growth is coordination rather than strategy or product. The largest single value opportunity identified is the seam between ${top.a} and ${top.b}, most likely driven by ${top.cause.toLowerCase()}, estimated at ${fmtGBP(top.leakLow)}–${fmtGBP(top.leakHigh)} of annual exposure.`;
+
+    document.getElementById('repGrowthScore').textContent=hcScore;
+    document.getElementById('repSeamTotal').textContent=fmtGBP(seamTotalLeak);
+    const align=hcBreakdown.find(b=>b.label==="Leadership Alignment");
+    const ai=hcBreakdown.find(b=>b.label==="AI Readiness");
+    document.getElementById('repAlignment').textContent=(align?align.val:'—')+'%';
+    document.getElementById('repAI').textContent=ai&&ai.val>=60?'High':(ai&&ai.val>=40?'Medium':'Developing');
+
+    const causeCounts={};
+    top3.forEach(s=>{causeCounts[s.cause]=(causeCounts[s.cause]||0)+1;});
+    const sharedCause=Object.keys(causeCounts).find(c=>causeCounts[c]>1);
+    const causeSentence=sharedCause
+      ? `${sharedCause} recurs across more than one of these seams, which points to a structural gap rather than an isolated handoff issue.`
+      : `Each traces back to a different structural gap, which suggests the issue is systemic rather than confined to one relationship.`;
+    document.getElementById('repSeamAnalysis').textContent=
+      `${top3.length===1?'One seam accounts':`${numWord(top3.length)} seams account`} for ${pctOfTotal}% of total estimated leakage: ${top3.map(s=>s.a+'–'+s.b).join(', ')}. ${causeSentence}`;
+
+    const priEl=document.getElementById('repPriorities');
+    priEl.innerHTML='';
+    top3.forEach(s=>{
+      const li=document.createElement('li');
+      li.innerHTML=`<div><div class="pt">Close the gap between ${s.a} and ${s.b}</div><div class="pd">Highest-scoring friction signal: ${s.cause.toLowerCase()}. Estimated at ${fmtGBP(s.leakLow)}–${fmtGBP(s.leakHigh)} of annual exposure.</div></div>`;
+      priEl.appendChild(li);
+    });
+
+    const bqEl=document.getElementById('repBoardQ');
+    bqEl.innerHTML='';
+    const boardQs=[
+      `Which of our current initiatives exist because ${top.a} couldn't see what ${top.b} already knew?`,
+      `If we closed only the top ${Math.min(3,ranked.length)} seam${ranked.length===1?'':'s'} this year, what would we choose to stop funding instead?`,
+      `Who owns the handoff between ${top.a} and ${top.b} today — and is that ownership working?`
+    ];
+    boardQs.forEach(q=>{const li=document.createElement('li');li.textContent=q;bqEl.appendChild(li);});
+
+    // ---- Recommended Next Steps ----
+    document.getElementById('repNextStepsIntro').innerHTML=
+      `Industry benchmarking is consistent on what a seam like this costs if left alone. Organisations with strong alignment between core commercial functions grow revenue at roughly <strong>20% a year</strong>, while misaligned peers see growth stall or decline by around <strong>4%</strong> — a gap that compounds fast over a three-year horizon. Yet fewer than <strong>1 in 10 companies</strong> report strong alignment between core commercial functions <span class="stat-source">(benchmarks widely cited across Aberdeen Group, SiriusDecisions and HubSpot research)</span>. This assessment exists to show which side of that gap ${businessName} sits on, seam by seam.`;
+
+    const nsEl=document.getElementById('repNextSteps');
+    nsEl.innerHTML='';
+    const steps=[
+      {t:'Seam Prioritisation Workshop',d:`A 90-minute session with your leadership team to walk through these results, agree ownership of the top ${top3.length} seam${top3.length===1?'':'s'}, and pressure-test the causes identified here.`},
+      {t:'90-Day Closure Sprint',d:`Lifecycle Studio works directly with ${top.a} and ${top.b} to close the highest-priority seam first, targeting the ${fmtGBP(top.leakLow)}–${fmtGBP(top.leakHigh)} currently at risk there.`},
+      {t:'Quarterly Growth Blueprint Review',d:`Re-run the assessment each quarter to track whether Seam Tax is falling and the Growth Score is moving — the same audit, tracked over time rather than a one-off snapshot.`}
+    ];
+    steps.forEach(s=>{
+      const li=document.createElement('li');
+      li.innerHTML=`<div><div class="pt">${s.t}</div><div class="pd">${s.d}</div></div>`;
+      nsEl.appendChild(li);
+    });
+
+    document.getElementById('ctaBody').textContent=
+      `A 30-minute call with Lifecycle Studio to walk through ${businessName}'s results, agree ownership of the ${top.a}–${top.b} seam, and scope the first 90-day sprint.`;
+  }
+  function numWord(n){return n===1?'One':n===2?'Two':n===3?'Three':n===4?'Four':n===5?'Five':n;}
+</script>
+</body>
+</html>
