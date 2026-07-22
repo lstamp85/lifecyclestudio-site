@@ -28,6 +28,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .nav-links a,.nav-links button{background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.55);text-decoration:none;padding:0 14px;height:64px;display:flex;align-items:center;transition:color 0.2s;white-space:nowrap}
 .nav-links a:hover,.nav-links button:hover{color:var(--l)}
 .nav-links .active{color:var(--wh)!important}
+
+.nav-drop{position:relative}
+.nav-drop>button{gap:5px}
+.nav-drop-caret{display:inline-block;font-size:9px;transition:transform 0.2s}
+.nav-drop:hover .nav-drop-caret,.nav-drop.open .nav-drop-caret{transform:rotate(180deg)}
+.nav-drop-menu{position:absolute;top:100%;left:0;min-width:210px;background:var(--dk);border:1px solid rgba(127,191,184,0.14);border-radius:6px;padding:6px;box-shadow:0 12px 28px rgba(0,0,0,0.35);opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity 0.18s ease,transform 0.18s ease;z-index:210}
+.nav-drop:hover .nav-drop-menu,.nav-drop.open .nav-drop-menu{opacity:1;pointer-events:auto;transform:translateY(0)}
+.nav-drop-menu a{height:auto!important;padding:11px 14px!important;border-radius:4px;display:block!important}
+.nav-drop-menu a:hover{background:rgba(127,191,184,0.1)}
+@media (max-width:900px){
+  .nav-drop-menu{position:static;opacity:1;pointer-events:auto;transform:none;box-shadow:none;border:none;background:none;padding:0 0 0 14px;display:none}
+  .nav-drop.open .nav-drop-menu{display:block}
+  .nav-drop-caret{margin-left:auto}
+}
 .nav-cta{background:var(--am)!important;color:var(--wh)!important;padding:0 18px!important;height:auto!important;border-radius:4px!important;margin-left:6px}
 .nav-cta:hover{background:var(--amd)!important}
 .nav-toggle{display:none;background:none;border:none;cursor:pointer;padding:10px;margin-left:6px}
@@ -364,8 +378,14 @@ footer{background:var(--ink);padding:28px 52px;display:flex;align-items:center;j
     <li><button onclick="goTo('home','about-a')">About</button></li>
     <li><button id="nb-workshops" onclick="showPage('workshops')">Growth Programmes</button></li>
     <li><button id="nb-blog" onclick="showPage('blog')">Blog</button></li>
-    <li><a id="nb-growth-blueprint" href="growth-blueprint.html">Growth Blueprint</a></li>
-    <li><a id="nb-ppa" href="ppa-member.html">PPA Members</a></li>
+    <li class="nav-drop" id="navGrowthTools">
+      <button onclick="toggleNavDrop(event)">Growth Tools<span class="nav-drop-caret">▾</span></button>
+      <div class="nav-drop-menu">
+        <a id="nb-growth-blueprint" href="growth-blueprint.html">Growth Blueprint</a>
+        <a id="nb-ppa" href="ppa-member.html">PPA Members</a>
+        <a id="nb-ltv-calc" href="ltv-calculator.html">LTV &amp; LTV:CAC Calculator</a>
+      </div>
+    </li>
     <li><button class="nav-cta" onclick="goTo('home','contact-a')">Start a conversation</button></li>
   </ul>
   <button class="nav-toggle" id="navToggle" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false">
@@ -1167,6 +1187,12 @@ function toggleMobileNav() {
   const btn = document.getElementById('navToggle');
   const isOpen = btn.classList.toggle('open');
   btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+
+function toggleNavDrop(e) {
+  if (window.innerWidth > 900) return; // desktop uses hover
+  e.stopPropagation();
+  document.getElementById('navGrowthTools').classList.toggle('open');
 }
 
 function goTo(page, anchor) {

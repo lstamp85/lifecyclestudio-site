@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LTV &amp; LTV:CAC Calculator — Lifecycle Studio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Poppins:wght@300;400;500;600&display=swap');
+
+  :root{
+    --ink:#14130F;
+    --cream:#F5F1EA;
+    --cream-60:rgba(245,241,234,0.60);
+    --cream-40:rgba(245,241,234,0.35);
+    --cream-15:rgba(245,241,234,0.14);
+    --good:#F5F1EA;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--ink);color:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:56px 24px 80px;}
+
+  .kicker{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--cream-60);font-weight:500;margin-bottom:18px;}
+  .kicker span{color:var(--cream-40);margin:0 8px;}
+  .kicker a{color:var(--cream-60);text-decoration:none;transition:color .15s ease;}
+  .kicker a:hover{color:var(--cream);text-decoration:underline;}
+
+  h1{font-family:'Lora',serif;font-weight:400;font-size:40px;line-height:1.15;margin:0 0 10px;letter-spacing:-0.3px;}
+  h1 em{font-style:italic;font-weight:400;}
+  .sub{font-size:15px;color:var(--cream-60);line-height:1.6;max-width:520px;margin:0 0 28px;}
+
+  .prep{
+    border-left:2px solid var(--cream-40);
+    padding:16px 20px;
+    margin:0 0 40px;
+    max-width:560px;
+  }
+  .prep-eyebrow{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--cream-60);margin-bottom:10px;}
+  .prep ul{margin:0;padding:0;list-style:none;}
+  .prep li{font-size:13.5px;line-height:1.6;color:var(--cream-60);margin-bottom:7px;padding-left:14px;position:relative;}
+  .prep li:last-child{margin-bottom:0;}
+  .prep li::before{content:"—";position:absolute;left:0;color:var(--cream-40);}
+  .prep li strong{color:var(--cream);font-weight:500;}
+
+  .card{
+    border-top:1px solid var(--cream-15);
+    border-bottom:1px solid var(--cream-15);
+    padding:36px 0;
+  }
+
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:20px 28px;margin-bottom:8px;}
+  @media (max-width:560px){ .field-row{grid-template-columns:1fr;} }
+
+  .field{margin-bottom:24px;}
+  .field label{display:block;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--cream-60);margin-bottom:9px;}
+  .field .hint{font-size:11.5px;color:var(--cream-40);margin-top:6px;font-style:italic;font-family:'Lora',serif;}
+
+  .input-shell{position:relative;}
+  .input-shell .prefix{position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:17px;color:var(--cream-60);}
+  .input-shell .suffix{position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--cream-60);}
+
+  input[type=number]{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--cream-40);
+    color:var(--cream);
+    font-family:'Lora',serif;
+    font-size:22px;
+    padding:6px 0 8px 0;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .with-prefix input[type=number]{padding-left:16px;}
+  .with-suffix input[type=number]{padding-right:36px;}
+  input[type=number]:focus{border-bottom-color:var(--cream);}
+  input[type=number]::-webkit-inner-spin-button{opacity:0.4;}
+  input[type=number]::placeholder{color:var(--cream-40);font-family:'Poppins',sans-serif;font-size:14px;}
+
+  /* Results ledger */
+  .results{margin-top:52px;}
+  .results-title{font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:var(--cream-60);margin-bottom:22px;}
+
+  .stats{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--cream-15);}
+  .stat{
+    flex:1 1 33%;
+    min-width:150px;
+    padding:24px 22px 22px 0;
+    border-right:1px solid var(--cream-15);
+  }
+  .stat:last-child{border-right:none;}
+  .stat .num{font-family:'Lora',serif;font-style:italic;font-size:34px;color:var(--cream);line-height:1;white-space:nowrap;}
+  .stat .lbl{margin-top:9px;font-size:11px;letter-spacing:0.4px;color:var(--cream-60);line-height:1.4;max-width:170px;}
+
+  .verdict{
+    margin-top:26px;
+    padding:18px 22px;
+    border-left:2px solid var(--cream);
+    font-size:14.5px;
+    line-height:1.6;
+    color:var(--cream-60);
+  }
+  .verdict strong{color:var(--cream);font-weight:500;}
+
+  .actions{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap;}
+  button.act{
+    background:transparent;
+    border:1px solid var(--cream-40);
+    color:var(--cream);
+    font-family:'Poppins',sans-serif;
+    font-size:12.5px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    padding:13px 22px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  button.act:hover{background:var(--cream);color:var(--ink);border-color:var(--cream);}
+  button.act:disabled{opacity:0.3;cursor:default;}
+  button.act:disabled:hover{background:transparent;color:var(--cream);}
+
+  .copied-msg{font-size:12px;color:var(--cream-60);font-style:italic;font-family:'Lora',serif;align-self:center;}
+
+  .footline{margin-top:56px;padding-top:22px;border-top:1px solid var(--cream-15);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;color:var(--cream-40);text-align:right;}
+  .footline a{color:var(--cream-40);text-decoration:none;}
+  .footline a:hover{color:var(--cream-60);text-decoration:underline;}
+
+  #shareCanvas{display:none;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="kicker"><a href="https://lifecyclestudio.co.uk">LIFECYCLE STUDIO</a><span>/</span>CUSTOMER GROWTH TOOLS</div>
+  <h1>What's a customer<br><em>actually worth</em> to you?</h1>
+  <p class="sub">Enter your numbers below. This works out your Lifetime Value, your LTV:CAC ratio, and whether your growth engine is healthy, fragile, or quietly burning cash.</p>
+
+  <div class="prep">
+    <div class="prep-eyebrow">Before you start — have these five numbers to hand</div>
+    <ul>
+      <li><strong>Average order value</strong> — from your sales or billing platform</li>
+      <li><strong>Purchase frequency</strong> — orders per customer per year, from repeat-purchase data</li>
+      <li><strong>Gross margin</strong> — revenue minus cost of delivering the product, as a %</li>
+      <li><strong>Customer lifespan</strong> — how long the average customer stays, from churn or retention data</li>
+      <li><strong>CAC</strong> — total sales &amp; marketing spend ÷ new customers won, over the same period</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="field-row">
+      <div class="field">
+        <label for="aov">Average order value</label>
+        <div class="input-shell with-prefix with-suffix">
+          <span class="prefix">£</span>
+          <input type="number" id="aov" placeholder="0" min="0" step="0.01">
+        </div>
+        <div class="hint">Total revenue ÷ number of orders, from your sales data</div>
+      </div>
+      <div class="field">
+        <label for="freq">Purchases per customer, per year</label>
+        <div class="input-shell">
+          <input type="number" id="freq" placeholder="0" min="0" step="0.1">
+        </div>
+        <div class="hint">e.g. 4 if they buy roughly quarterly</div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="margin">Gross margin</label>
+        <div class="input-shell with-suffix">
+          <input type="number" id="margin" placeholder="0" min="0" max="100" step="1">
+          <span class="suffix">%</span>
+        </div>
+        <div class="hint">Revenue left after cost of delivering the product</div>
+      </div>
+      <div class="field">
+        <label for="lifespan">Average customer lifespan</label>
+        <div class="input-shell with-suffix">
+          <input type="number" id="lifespan" placeholder="0" min="0" step="0.1">
+          <span class="suffix">yrs</span>
+        </div>
+        <div class="hint">1 ÷ your annual churn rate, e.g. 20% churn = 5 years</div>
+      </div>
+    </div>
+
+    <div class="field-row" style="margin-top:4px;">
+      <div class="field" style="margin-bottom:0;">
+        <label for="cac">Customer acquisition cost (CAC)</label>
+        <div class="input-shell with-prefix">
+          <span class="prefix">£</span>
+          <input type="number" id="cac" placeholder="0" min="0" step="0.01">
+        </div>
+        <div class="hint">Total sales &amp; marketing spend ÷ new customers won</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="results">
+    <div class="results-title">Your numbers</div>
+    <div class="stats">
+      <div class="stat">
+        <div class="num" id="outLtv">£0</div>
+        <div class="lbl">Customer lifetime value</div>
+      </div>
+      <div class="stat">
+        <div class="num" id="outCac">£0</div>
+        <div class="lbl">Cost to acquire a customer</div>
+      </div>
+      <div class="stat">
+        <div class="num" id="outRatio">0:1</div>
+        <div class="lbl">LTV : CAC ratio</div>
+      </div>
+    </div>
+
+    <div class="verdict" id="verdict">Add your numbers above to see where you stand.</div>
+
+    <div class="actions">
+      <button class="act" id="downloadBtn" disabled>Download shareable card</button>
+      <button class="act" id="copyBtn" disabled>Copy summary</button>
+      <span class="copied-msg" id="copiedMsg" style="display:none;">Copied.</span>
+    </div>
+  </div>
+
+  <div class="footline"><a href="https://lifecyclestudio.co.uk">Lifecycle Studio</a> · Customer Growth Consultancy</div>
+</div>
+
+<canvas id="shareCanvas" width="1600" height="900"></canvas>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const fields = ['aov','freq','margin','lifespan','cac'].map($);
+  const outLtv = $('outLtv'), outCac = $('outCac'), outRatio = $('outRatio'), verdict = $('verdict');
+  const downloadBtn = $('downloadBtn'), copyBtn = $('copyBtn'), copiedMsg = $('copiedMsg');
+
+  function fmtMoney(n){
+    if(!isFinite(n)) return '£0';
+    return '£' + n.toLocaleString('en-GB', {maximumFractionDigits: n < 1000 ? 0 : 0});
+  }
+
+  let state = {ltv:0, cac:0, ratio:0, hasData:false};
+
+  function verdictText(ratio, hasCac){
+    if(!hasCac) return {text:'Add a CAC figure to see your LTV:CAC ratio and health check.', tone:'neutral'};
+    if(ratio <= 0) return {text:'Enter your numbers above to see where you stand.', tone:'neutral'};
+    if(ratio < 1) return {text:'<strong>Underwater.</strong> You are spending more to win a customer than they will ever return. Fix this before scaling anything.', tone:'bad'};
+    if(ratio < 3) return {text:'<strong>Fragile.</strong> You are making money on paper, but there is little room for it to slip. Most healthy businesses aim for 3:1 or higher.', tone:'warn'};
+    if(ratio <= 5) return {text:'<strong>Healthy.</strong> A solid, sustainable ratio — comfortable room to reinvest in growth.', tone:'good'};
+    return {text:'<strong>Very strong — or under-investing.</strong> A ratio this high often means you could spend more on acquisition and still grow profitably.', tone:'good'};
+  }
+
+  function calculate(){
+    const aov = parseFloat($('aov').value) || 0;
+    const freq = parseFloat($('freq').value) || 0;
+    const margin = parseFloat($('margin').value) || 0;
+    const lifespan = parseFloat($('lifespan').value) || 0;
+    const cac = parseFloat($('cac').value) || 0;
+
+    const ltv = aov * freq * (margin/100) * lifespan;
+    const hasCac = cac > 0;
+    const ratio = hasCac ? ltv / cac : 0;
+
+    outLtv.textContent = fmtMoney(ltv);
+    outCac.textContent = fmtMoney(cac);
+    outRatio.textContent = hasCac ? (Math.round(ratio*10)/10) + ':1' : '—';
+
+    const v = verdictText(ratio, hasCac);
+    verdict.innerHTML = v.text;
+
+    const hasAnyInput = aov>0 || freq>0 || margin>0 || lifespan>0 || cac>0;
+    downloadBtn.disabled = !hasAnyInput;
+    copyBtn.disabled = !hasAnyInput;
+
+    state = {ltv, cac, ratio, hasCac, hasData: hasAnyInput};
+  }
+
+  fields.forEach(f => f.addEventListener('input', calculate));
+  calculate();
+
+  copyBtn.addEventListener('click', function(){
+    const lines = [
+      'Customer Lifetime Value: ' + fmtMoney(state.ltv),
+      state.hasCac ? 'Customer Acquisition Cost: ' + fmtMoney(state.cac) : null,
+      state.hasCac ? 'LTV : CAC ratio: ' + (Math.round(state.ratio*10)/10) + ':1' : null,
+      '',
+      'Calculated with the Lifecycle Studio LTV calculator.'
+    ].filter(Boolean).join('\n');
+    navigator.clipboard.writeText(lines).then(function(){
+      copiedMsg.style.display = 'inline';
+      setTimeout(()=>{copiedMsg.style.display='none';}, 2200);
+    });
+  });
+
+  downloadBtn.addEventListener('click', function(){
+    const canvas = $('shareCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    // background
+    ctx.fillStyle = '#14130F';
+    ctx.fillRect(0,0,W,H);
+
+    // frame rules
+    ctx.strokeStyle = 'rgba(245,241,234,0.22)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(60,60); ctx.lineTo(W-60,60); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(60,H-60); ctx.lineTo(W-60,H-60); ctx.stroke();
+
+    // kicker
+    ctx.fillStyle = 'rgba(245,241,234,0.55)';
+    ctx.font = '500 15px Poppins, sans-serif';
+    ctx.textBaseline = 'alphabetic';
+    letterSpacedText(ctx, 'LIFECYCLE STUDIO  /  CUSTOMER GROWTH SNAPSHOT', 64, 100, 3);
+
+    // headline
+    ctx.fillStyle = '#F5F1EA';
+    ctx.font = '400 54px Lora, serif';
+    ctx.fillText('This customer is worth', 64, 190);
+    ctx.font = 'italic 400 54px Lora, serif';
+    const ltvStr = fmtMoney(state.ltv) + ' to us.';
+    ctx.fillText(ltvStr, 64, 250);
+
+    // divider rule
+    ctx.strokeStyle = '#F5F1EA';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(64,290); ctx.lineTo(110,290); ctx.stroke();
+
+    // stat row
+    const stats = [
+      {num: fmtMoney(state.ltv), lbl:'Lifetime value'},
+      {num: state.hasCac ? fmtMoney(state.cac) : '—', lbl:'Acquisition cost'},
+      {num: state.hasCac ? (Math.round(state.ratio*10)/10)+':1' : '—', lbl:'LTV : CAC ratio'}
+    ];
+    const colW = (W - 128) / 3;
+    stats.forEach(function(s, i){
+      const x = 64 + i*colW;
+      if(i>0){
+        ctx.strokeStyle = 'rgba(245,241,234,0.25)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x, 360); ctx.lineTo(x, 470); ctx.stroke();
+      }
+      const tx = x + (i>0 ? 32 : 0);
+      ctx.fillStyle = '#F5F1EA';
+      ctx.font = 'italic 400 46px Lora, serif';
+      ctx.fillText(s.num, tx, 425);
+      ctx.fillStyle = 'rgba(245,241,234,0.55)';
+      ctx.font = '400 15px Poppins, sans-serif';
+      ctx.fillText(s.lbl, tx, 458);
+    });
+
+    // verdict strip
+    const v = verdictText(state.ratio, state.hasCac);
+    const plain = v.text.replace(/<[^>]+>/g,'');
+    ctx.strokeStyle = '#F5F1EA';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(64,540); ctx.lineTo(64,620); ctx.stroke();
+    ctx.fillStyle = 'rgba(245,241,234,0.75)';
+    ctx.font = '300 22px Poppins, sans-serif';
+    wrapText(ctx, plain, 96, 570, W - 200, 32);
+
+    // footline
+    ctx.fillStyle = 'rgba(245,241,234,0.45)';
+    ctx.font = '500 16px Poppins, sans-serif';
+    ctx.textAlign = 'right';
+    letterSpacedText(ctx, 'LIFECYCLESTUDIO.CO.UK', W-64, H-90, 2, true);
+    ctx.textAlign = 'left';
+
+    canvas.toBlob(function(blob){
+      const link = document.createElement('a');
+      link.download = 'customer-lifetime-value.png';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    });
+  });
+
+  function letterSpacedText(ctx, text, x, y, spacing, rightAlign){
+    let cx = x;
+    const chars = text.split('');
+    if(rightAlign){
+      const total = chars.reduce((sum,ch)=> sum + ctx.measureText(ch).width + spacing, 0);
+      cx = x - total;
+      ctx.textAlign = 'left';
+      chars.forEach(function(ch){
+        ctx.fillText(ch, cx, y);
+        cx += ctx.measureText(ch).width + spacing;
+      });
+    } else {
+      chars.forEach(function(ch){
+        ctx.fillText(ch, cx, y);
+        cx += ctx.measureText(ch).width + spacing;
+      });
+    }
+  }
+
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+    const words = text.split(' ');
+    let line = '', ly = y;
+    for(let n=0; n<words.length; n++){
+      const test = line + words[n] + ' ';
+      if(ctx.measureText(test).width > maxWidth && n > 0){
+        ctx.fillText(line, x, ly);
+        line = words[n] + ' ';
+        ly += lineHeight;
+      } else {
+        line = test;
+      }
+    }
+    ctx.fillText(line, x, ly);
+  }
+})();
+</script>
+
+</body>
+</html>
